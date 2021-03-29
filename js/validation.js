@@ -1,8 +1,14 @@
-const birthDate = document.querySelector('#nascimento')
+export function validate(input) {
+    const inpuType = input.dataset.type
 
-birthDate.addEventListener('blur', (event) => {
-    validateBirthDate(event.target)
-})
+    if (validators[inpuType]) {
+        validators[inpuType](input)
+    }
+}
+
+const validators = {
+    birthDate:input => validateBirthDate(input)
+}
 
 function validateBirthDate(input) {
     const receivedDate = new Date(input.value)
@@ -11,7 +17,7 @@ function validateBirthDate(input) {
     if (!OlderThan18(receivedDate)) {
         message = 'Você deve ser maior e 18 anos para se cadastrar'
     }
-    
+
     input.setCustomValidity(message)
 }
 
