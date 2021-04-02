@@ -1,16 +1,25 @@
 export function validate(input) {
-    const inpuType = input.dataset.type
+    const typeOfInput = input.dataset.type
 
-    if (validators[inpuType]) {
-        validators[inpuType](input)
+    if (validators[typeOfInput]) {
+        validators[typeOfInput](input)
     }
 
     if (input.validity.valid) {
         input.parentElement.classList.remove('input-container--invalido')
+        input.parentElement.querySelector('.input-mensagem-erro').innerHTML = ''
     } else {
         input.parentElement.classList.add('input-container--invalido')
+        input.parentElement.querySelector('.input-mensagem-erro').innerHTML = showErrorMessages(typeOfInput, input)
     }
 }
+
+const typesOfError = [
+    'valueMissing',
+    'typeMismatch',
+    'patternMismatch',
+    'customError'
+]
 
 const errorMessages = {
     name : {
@@ -26,12 +35,38 @@ const errorMessages = {
     },
     birthDate: {
         valueMissing: 'O campo data de nascimento não pode estar vazio',
-        customError: 'Você deve ser maior e 18 anos para se cadastrar'
+        customError: 'Você deve ser maior de 18 anos para se cadastrar'
     }
 }
 
 const validators = {
     birthDate:input => validateBirthDate(input)
+}
+
+function showErrorMessages(typeOfInput, input) {
+    let message = ''
+
+    typesOfError.forEach(error => {
+        if (input.validity[error]) {
+            if (typeOfInput == 'name'){
+                message = errorMessages.name[error]
+            }
+
+            if (typeOfInput == 'email'){
+                message = errorMessages.email[error]
+            }
+
+            if (typeOfInput == 'password'){
+                message = errorMessages.password[error]
+            }
+
+            if (typeOfInput == 'birthDate'){
+                message = errorMessages.birthDate[error]
+            }
+        }
+    })
+
+    return message
 }
 
 function validateBirthDate(input) {
