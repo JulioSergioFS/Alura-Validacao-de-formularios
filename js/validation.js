@@ -36,11 +36,16 @@ const errorMessages = {
     birthDate: {
         valueMissing: 'O campo data de nascimento não pode estar vazio',
         customError: 'Você deve ser maior de 18 anos para se cadastrar'
+    },
+    cpf: {
+        valueMissing: 'O campo CPF não pode estar vazio',
+        customError: 'O CPF digitado não é válido'
     }
 }
 
 const validators = {
-    birthDate:input => validateBirthDate(input)
+    birthDate:input => validateBirthDate(input),
+    cpf:input => validateCPF(input)
 }
 
 function showErrorMessages(typeOfInput, input) {
@@ -62,6 +67,10 @@ function showErrorMessages(typeOfInput, input) {
 
             if (typeOfInput == 'birthDate'){
                 message = errorMessages.birthDate[error]
+            }
+
+            if (typeOfInput == 'cpf'){
+                message = errorMessages.cpf[error]
             }
         }
     })
@@ -85,4 +94,39 @@ function OlderThan18(date) {
     const dateOlderThan18 = new Date(date.getUTCFullYear() + 18, date.getUTCMonth(), date.getUTCDate())
 
     return dateOlderThan18 <= currentDate
+}
+
+function validateCPF(input) {
+    const cpfFormatted = input.value.replace(/\D/g, '')
+    let message = ''
+
+    if (!checkRepeatedCPF(cpfFormatted)) {
+        message = 'O CPF digitado não é válido'
+        console.log('uu')
+    }
+
+    input.setCustomValidity(message)
+}
+
+function checkRepeatedCPF(cpf) {
+    const repeatedValues = [
+        '00000000000',
+        '11111111111',
+        '22222222222',
+        '33333333333',
+        '44444444444',
+        '55555555555',
+        '66666666666',
+        '77777777777',
+        '88888888888',
+        '99999999999'
+    ]
+    let cpfValid = true
+    repeatedValues.forEach(value => {
+        if (value == cpf){
+            cpfValid = false
+        }
+    })
+
+    return cpfValid
 }
