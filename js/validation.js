@@ -40,12 +40,27 @@ const errorMessages = {
     cpf: {
         valueMissing: 'O campo CPF não pode estar vazio',
         customError: 'O CPF digitado não é válido'
+    },
+    cep: {
+        valueMissing: 'O campo de CEP não pode estar vazio',
+        patternMismatch: 'O CEP digitado não é válido.',
+        customError: 'Não foi possível buscar o CEP'
+    },
+    publicPlace: {
+        valueMissing: 'O campo de publicPlace não pode estar vazio'
+    },
+    city: {
+        valueMissing: 'O campo de city não pode estar vazio'
+    },
+    state: {
+        valueMissing: 'O campo de state não pode estar vazio'
     }
 }
 
 const validators = {
     birthDate: input => validateBirthDate(input),
-    cpf: input => validateCPF(input)
+    cpf: input => validateCPF(input),
+    cep: input => takeCEP(input)
 }
 
 function showErrorMessages(typeOfInput, input) {
@@ -71,6 +86,22 @@ function showErrorMessages(typeOfInput, input) {
 
             if (typeOfInput == 'cpf') {
                 message = errorMessages.cpf[error]
+            }
+
+            if (typeOfInput == 'cep') {
+                message = errorMessages.cep[error]
+            }
+
+            if (typeOfInput == 'publicPlace') {
+                message = errorMessages.publicPlace[error]
+            }
+
+            if (typeOfInput == 'city') {
+                message = errorMessages.city[error]
+            }
+
+            if (typeOfInput == 'state') {
+                message = errorMessages.state[error]
             }
         }
     })
@@ -163,4 +194,43 @@ function confirmDigit(sum) {
         rest = 0
     }
     return rest
+}
+
+function takeCEP(input) {
+    const cep = input.value.replace(/\D/g, '')
+    const url = `http://viacep.com.br/ws/${cep}/json/`
+    const options = {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+            'content-type': 'application/json;charset=utf-8'
+        }
+    }
+
+    if(!input.validity.patternMismatch && !input.validity.valueMissing) {
+        fetch(url,options).then(
+            response => response.json()
+        ).then(
+            data => {
+                if (data.erro) {
+                    input.setCustomValidity('Não foi possível buscar o CEP')
+                    return
+                } else{
+                    input.setCustomValidity('')
+                    fillFieldsWithCEP(data)
+                    return
+                }
+            }
+        )
+    }
+}
+
+function fillFieldsWithCEP(data) {
+    const publicPlace = document.querySelector('[data-type="publicPlace"]')
+    const city = document.querySelector('[data-type="city"]')
+    const state = document.querySelector('[data-type="state"]')
+
+    publicPlace.value = data.logradouro
+    city.value = data.localidade
+    state.value = data.uf
 }
