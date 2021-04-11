@@ -22,7 +22,7 @@ const typesOfError = [
 ]
 
 const errorMessages = {
-    name : {
+    name: {
         valueMissing: 'O campo nome não pode estar vazio'
     },
     email: {
@@ -44,8 +44,8 @@ const errorMessages = {
 }
 
 const validators = {
-    birthDate:input => validateBirthDate(input),
-    cpf:input => validateCPF(input)
+    birthDate: input => validateBirthDate(input),
+    cpf: input => validateCPF(input)
 }
 
 function showErrorMessages(typeOfInput, input) {
@@ -53,23 +53,23 @@ function showErrorMessages(typeOfInput, input) {
 
     typesOfError.forEach(error => {
         if (input.validity[error]) {
-            if (typeOfInput == 'name'){
+            if (typeOfInput == 'name') {
                 message = errorMessages.name[error]
             }
 
-            if (typeOfInput == 'email'){
+            if (typeOfInput == 'email') {
                 message = errorMessages.email[error]
             }
 
-            if (typeOfInput == 'password'){
+            if (typeOfInput == 'password') {
                 message = errorMessages.password[error]
             }
 
-            if (typeOfInput == 'birthDate'){
+            if (typeOfInput == 'birthDate') {
                 message = errorMessages.birthDate[error]
             }
 
-            if (typeOfInput == 'cpf'){
+            if (typeOfInput == 'cpf') {
                 message = errorMessages.cpf[error]
             }
         }
@@ -100,9 +100,8 @@ function validateCPF(input) {
     const cpfFormatted = input.value.replace(/\D/g, '')
     let message = ''
 
-    if (!checkRepeatedCPF(cpfFormatted)) {
+    if (!checkRepeatedCPF(cpfFormatted) || !checkCPFEstructure(cpfFormatted)) {
         message = 'O CPF digitado não é válido'
-        console.log('uu')
     }
 
     input.setCustomValidity(message)
@@ -123,10 +122,45 @@ function checkRepeatedCPF(cpf) {
     ]
     let cpfValid = true
     repeatedValues.forEach(value => {
-        if (value == cpf){
+        if (value == cpf) {
             cpfValid = false
         }
     })
 
     return cpfValid
+}
+
+function checkCPFEstructure(cpf) {
+    const multiplier = 10
+
+    return checkVerificationDigit(cpf, multiplier)
+}
+
+function checkVerificationDigit(cpf, multiplier) {
+    if (multiplier >= 12) {
+        return true
+    }
+
+    let initialMultiplier = multiplier
+    let sum = 0
+    const cpfWithoutDigits = cpf.substr(0, multiplier - 1).split('')
+    const verificationDigit = cpf.charAt(multiplier - 1)
+    for (let counter = 0; initialMultiplier > 1; initialMultiplier--) {
+        sum = sum + cpfWithoutDigits[counter] * initialMultiplier
+        counter++
+    }
+
+    if (verificationDigit == confirmDigit(sum)) {
+        return checkVerificationDigit(cpf, multiplier + 1)
+    }
+
+    return false
+}
+
+function confirmDigit(sum) {
+    let rest = 11 - (sum % 11)
+    if (rest === 10 || rest === 11) {
+        rest = 0
+    }
+    return rest
 }
